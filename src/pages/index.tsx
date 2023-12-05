@@ -1,5 +1,5 @@
 import { LeftSidebar } from "@/components/left-sidebar";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const formSteps = [
   {
@@ -38,28 +38,28 @@ const formSteps = [
 
 export default function Home() {
   const currentData = {
-    name: null,
-    email: null,
-    contactno: null,
-    country: null,
+    name: "",
+    email: "",
+    contactno: "",
+    country: "",
     workExperience: [],
     educationHistory: [],
   };
   const currenteducationObj = {
-    universityname: null,
-    degree: null,
-    graduationyear: null
+    universityname: "",
+    degree: "",
+    graduationyear: ""
   }
   const currentWorkexpObj = {
-    companyname: null,
-    position: null,
-    workDuration: null
+    companyname: "",
+    position: "",
+    workDuration: ""
   }
   const [curentStep, setCurrentStep] = useState<number>(0);
   const [formData, setFormData] = useState<any>(currentData);
   const [educationObj, setEducationObj] = useState(currenteducationObj);
   const [workExpObj, setworkExpObj] = useState(currentWorkexpObj);
-
+  const formRef = useRef<any>(null);
   const isValidMobileNumber = (value: any) => {
     const mobileNumberPattern = /^[0-9()+\-\s]+$/;
     return mobileNumberPattern.test(value);
@@ -74,7 +74,7 @@ export default function Home() {
         setFormData((prevData: any) => ({ ...prevData, email: value.toString() }));
         break;
       case 'contactno':
-        if (isValidMobileNumber(value)) {
+        if (isValidMobileNumber(value) || value === "") {
           setFormData((prevData: any) => ({ ...prevData, contactno: value }));
         }
         break;
@@ -82,22 +82,19 @@ export default function Home() {
         setFormData((prevData: any) => ({ ...prevData, country: value }));
         break;
       case 'workExperience':
-        alert(JSON.stringify(value));
         if (value != currentWorkexpObj) {
           const getCurrectWorkExpList = formData.workExperience;
-          getCurrectWorkExpList.push(currentWorkexpObj);
+          getCurrectWorkExpList.push(value);
           setFormData((prevData: any) => ({ ...prevData, workExperience: getCurrectWorkExpList }));
           setworkExpObj({ ...currentWorkexpObj })
-          alert("Work Experience updated to the List");
         }
         break;
       case 'educationHistory':
         if (value != currenteducationObj) {
           const getCurrenteducationList = formData.educationHistory;
-          getCurrenteducationList.push(currenteducationObj);
+          getCurrenteducationList.push(value);
           setFormData((prevData: any) => ({ ...prevData, educationHistory: getCurrenteducationList }));
           setEducationObj(currenteducationObj);
-          alert("Education history updated to the List");
         }
         break;
       case 'universityname':
@@ -110,7 +107,6 @@ export default function Home() {
         setEducationObj((prevData: any) => ({ ...prevData, graduationyear: value }));
         break;
       case 'companyname':
-        alert(JSON.stringify(workExpObj));
         setworkExpObj((prevData: any) => ({ ...prevData, companyname: value }));
         break;
       case 'position':
@@ -128,12 +124,15 @@ export default function Home() {
     return fields.map((field: any) => (
       <div key={field.id} className={`px-2 w-full lg:w-1/2 my-2`}>
         {field.type === "button" ?
-          <button className="mt-7 bg-green-300 text-white py-2 px-4 rounded-lg hover:bg-green-400 focus:outline-none focus:ring focus:border-blue-300" type="button"
+          <button className="mt-7 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring focus:border-blue-300" type="button"
             onClick={() => {
               if (field.id === "submit-workexp") {
                 handleChange('workExperience', workExpObj)
               } else if (field.id === "submit-educ") {
                 handleChange('educationHistory', educationObj)
+              }
+              if (formRef.current) {
+                formRef.current.reset();
               }
             }}
           >
@@ -146,7 +145,7 @@ export default function Home() {
             <input
               type={field.type}
               id={field.id}
-              className={`bg-green-50 border border-green-500 text-green-900 placeholder-green-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5`}
+              className={` border border-green-500 text-black font-normal font-sans placeholder-green-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5`}
               placeholder={field.placeholder}
               value={formData[field.id.toString()]}
               onChange={(e) => handleChange(field.id.toString(), e.target.value)}
@@ -168,10 +167,56 @@ export default function Home() {
           <div key={curentStep.toString() + "fields"} className="my-7">
             <h4 className="font-semibold text-black text-3xl">{formSteps[curentStep].title}</h4>
             <h5 className="font-normal text-black text-base mt-4">{/* Add step description if needed */}</h5>
-            <form className="flex flex-col sm:flex-row flex-wrap">
+            <form className="flex flex-col sm:flex-row flex-wrap" ref={formRef}>
               {renderFields(formSteps[curentStep].fields)}
             </form>
           </div>
+
+          {formSteps[curentStep].title === "Work Experiences" && formData.workExperience.length > 0 &&
+            <div className="container h-[200px] overflow-auto">
+              <table className="min-w-full bg-white border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b text-center">Company Name</th>
+                    <th className="py-2 px-4 border-b text-center">Position</th>
+                    <th className="py-2 px-4 border-b text-center">Developer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.workExperience.map((item: any, index: number) => (
+                    <tr key={item.companyname + index.toString()} className="hover:bg-gray-100">
+                      <td className="py-2 px-4 border-b text-center">{item.companyname}</td>
+                      <td className="py-2 px-4 border-b text-center">{item.position}</td>
+                      <td className="py-2 px-4 border-b text-center">{item.workDuration}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          }
+
+          {formSteps[curentStep].title === "Education History" && formData.educationHistory.length > 0 &&
+            <div className="container h-[200px] overflow-auto">
+              <table className="min-w-full bg-white border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b text-center">University Name</th>
+                    <th className="py-2 px-4 border-b text-center">Degree</th>
+                    <th className="py-2 px-4 border-b text-center">Graduation Year</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.educationHistory.map((item: any, index: number) => (
+                    <tr key={item.companyname + index.toString()} className="hover:bg-gray-100">
+                      <td className="py-2 px-4 border-b text-center">{item.universityname}</td>
+                      <td className="py-2 px-4 border-b text-center">{item.degree}</td>
+                      <td className="py-2 px-4 border-b text-center">{item.graduationyear}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          }
 
           <div className="flex justify-end gap-3 my-3">
             {curentStep > 0 && curentStep < 3 && <button className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring focus:border-blue-300" type="button"
@@ -179,61 +224,16 @@ export default function Home() {
               Previous
             </button>}
             {curentStep < 2 && <button className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring focus:border-blue-300" type="button"
-              onClick={() => { setCurrentStep(curentStep + 1) }}>
+              onClick={() => { setCurrentStep(curentStep + 1); }}>
               Next
             </button>}
             {curentStep === 2 && <button className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring focus:border-blue-300" type="button"
-              onClick={() => { setCurrentStep(curentStep + 1) }}>
+              onClick={() => { setCurrentStep(curentStep + 1); }}>
               Finish
             </button>}
           </div>
         </div>
-
-        {/* <div className="w-[100%] lg:w-[75%] h-screen m-2 p-2 lg:m-5 lg:p-5">
-          <div className="my-7">
-            <h4 className="font-semibold text-black text-3xl">Personal Information</h4>
-            <h5 className="font-normal text-black text-base mt-4">Enter your personal information to get closer to companies.</h5>
-          </div>
-          <form className="flex flex-col sm:flex-row flex-wrap">
-            <div className="px-2 w-full lg:w-1/2 my-2">
-              <label htmlFor="username-success" className="block mb-2 text-sm font-medium text-green-700">Your name</label>
-              <input type="text" id="username-success" className="bg-green-50 border border-green-500 text-green-900 placeholder-green-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5" placeholder="Bonnie Green" />
-              <p className="mt-2 text-sm text-green-600 "><span className="font-medium">Alright!</span> Username available!</p>
-            </div>
-
-            <div className="px-2 w-full lg:w-1/2 my-2">
-              <label htmlFor="email" className="block mb-2 text-sm font-medium text-green-700">Email Address</label>
-              <input type="email" id="email" className="bg-green-50 border border-green-500 text-green-900 placeholder-green-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5" placeholder="your.email@example.com" />
-            </div>
-
-            <div className="px-2 w-full lg:w-1/2 my-2">
-              <label htmlFor="phone" className="block mb-2 text-sm font-medium text-red-700">Phone Number</label>
-              <input type="tel" id="phone" className="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5" placeholder="123-456-7890" />
-            </div>
-
-            <div className="px-2 w-full lg:w-1/2 my-2">
-              <label htmlFor="dob" className="block mb-2 text-sm font-medium text-red-700">Date of Birth</label>
-              <input type="date" id="dob" className="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5" />
-            </div>
-
-            <div className="px-2 w-full my-2">
-              <label htmlFor="address" className="block mb-2 text-sm font-medium text-green-700">Address</label>
-              <textarea id="address" className="bg-green-50 border border-green-500 text-green-900 placeholder-green-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 resize-none" placeholder="Enter your address"></textarea>
-            </div>
-          </form>
-          <div className="flex justify-end gap-3 my-3">
-            <button className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring focus:border-blue-300" type="button">
-              Previous
-            </button>
-            <button className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring focus:border-blue-300" type="button">
-              Next
-            </button>
-          </div>
-        </div> */}
-
-
-
-
+        
       </div>
     </div >
   )
