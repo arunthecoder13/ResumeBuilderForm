@@ -59,10 +59,66 @@ export default function Home() {
   const [formData, setFormData] = useState<any>(currentData);
   const [educationObj, setEducationObj] = useState(currenteducationObj);
   const [workExpObj, setworkExpObj] = useState(currentWorkexpObj);
+  const [validationErrors, setValidationErrors] = useState<any>({});
   const formRef = useRef<any>(null);
+
   const isValidMobileNumber = (value: any) => {
     const mobileNumberPattern = /^[0-9()+\-\s]+$/;
     return mobileNumberPattern.test(value);
+  };
+
+  const validateForm = () => {
+    const errors: any = {};
+
+    if (!formData.name) {
+      errors.name = "Name is required";
+    }
+
+    if (!formData.email) {
+      errors.email = "Email is required";
+    } else if (!isValidEmail(formData.email)) {
+      errors.email = "Enter a valid email address";
+    }
+
+    if (!formData.contactno) {
+      errors.contactno = "Contact number is required";
+    } else if (!isValidMobileNumber(formData.contactno)) {
+      errors.contactno = "Enter a valid contact number";
+    }
+
+    if (!formData.country) {
+      errors.country = "Country is required";
+    }
+
+    if (formData.educationHistory.length <= 0) {
+      errors.educationHistory = "Add at least one Education";
+    }
+
+    if (formData.workExperience.length <= 0) {
+      errors.workExperience = "Add at least one Work Experience"
+    }
+
+    setValidationErrors(errors);
+
+    if (Object.keys(errors).length === 0) {
+      setCurrentStep(curentStep + 1);
+    }
+    else {
+      if ("name" in validationErrors || "email" in validationErrors || "contactno" in validationErrors || "country" in validationErrors) {
+        setCurrentStep(0);
+      }
+      else if ("workExperience" in validationErrors) {
+        setCurrentStep(1);
+      }
+      else if ("educationHistory" in validationErrors) {
+        setCurrentStep(2);
+      }
+    }
+  };
+
+  const isValidEmail = (value: string) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(value);
   };
 
   const handleChange = (fieldname: string, value: any) => {
@@ -145,11 +201,14 @@ export default function Home() {
             <input
               type={field.type}
               id={field.id}
-              className={` border border-green-500 text-black font-normal font-sans placeholder-green-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5`}
+              className={`border ${validationErrors[field.id] ? "border-red-500" : "border-green-500"} text-black font-normal font-sans placeholder-green-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5`}
               placeholder={field.placeholder}
               value={formData[field.id.toString()]}
               onChange={(e) => handleChange(field.id.toString(), e.target.value)}
             />
+            {validationErrors[field.id] && (
+              <p className="text-red-500 text-sm mt-1">{validationErrors[field.id]}</p>
+            )}
           </>
         }
 
@@ -160,7 +219,7 @@ export default function Home() {
   return (
     <div className="lg:container mb-5 mx-auto lg:h-screen overflow-auto lg:overflow-hidden lg:py-10">
       <div className="flex flex-row justify-center h-full lg:rounded-2xl lg:shadow-xl bg-[#FFFFFF]">
-        <LeftSidebar curentStep={curentStep} />
+        <LeftSidebar curentStep={curentStep} setCurrentStep={setCurrentStep} />
 
         <div className="w-[100%] lg:w-[75%] h-screen m-2 p-2 lg:m-5 lg:p-5 overflow-auto">
 
@@ -172,6 +231,12 @@ export default function Home() {
             </form>
           </div>
 
+          {validationErrors["workExperience"] && curentStep === 1 && (
+            <p className="text-red-500 text-lg mt-1 font-medium">{validationErrors["workExperience"]}</p>
+          )}
+          {validationErrors["educationHistory"] && curentStep === 2 && (
+            <p className="text-red-500 text-lg mt-1 font-medium">{validationErrors["educationHistory"]}</p>
+          )}
           {formSteps[curentStep].title === "Work Experiences" && formData.workExperience.length > 0 &&
             <div className="container h-[200px] overflow-auto">
               <table className="min-w-full bg-white border border-gray-300">
@@ -217,7 +282,13 @@ export default function Home() {
               </table>
             </div>
           }
-
+          {curentStep === 3 &&
+            <div className="flex flex-col justify-center items-center gap-3">
+              <img src="https://img.icons8.com/color/96/000000/ok--v2.png"></img>
+              <h2 className="text-center text-green-500 font-bold text-xl">Success!</h2>
+              <h4 className="text-center text-green-500 font-bold text-xl">Response Recorded Successfully!</h4>
+            </div>
+          }
           <div className="flex justify-end gap-3 my-3">
             {curentStep > 0 && curentStep < 3 && <button className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring focus:border-blue-300" type="button"
               onClick={() => { setCurrentStep(curentStep - 1) }}>
@@ -228,12 +299,12 @@ export default function Home() {
               Next
             </button>}
             {curentStep === 2 && <button className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring focus:border-blue-300" type="button"
-              onClick={() => { setCurrentStep(curentStep + 1); }}>
+              onClick={() => { validateForm(); }}>
               Finish
             </button>}
           </div>
         </div>
-        
+
       </div>
     </div >
   )

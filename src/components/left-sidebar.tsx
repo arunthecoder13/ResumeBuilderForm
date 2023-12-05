@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const LeftSidebar = ({ curentStep }: { curentStep: number }) => {
+export const LeftSidebar = ({ curentStep, setCurrentStep }: { curentStep: number, setCurrentStep: React.Dispatch<React.SetStateAction<number>> }) => {
     return (
         <div className="hidden lg:flex w-[25%] flex-col bg-[#304767] p-7 rounded-l-2xl">
             <h3 className="font-bold text-white text-2xl">AI Generation</h3>
@@ -12,7 +12,7 @@ export const LeftSidebar = ({ curentStep }: { curentStep: number }) => {
 
             <div className="my-10 flex flex-col justify-center items-center">
                 <ol className="relative text-gray-500 border-s border-gray-200">
-                    <li className="mb-10 ms-10">
+                    <li className="mb-10 ms-10 cursor-pointer" onClick={() => setCurrentStep(0)}>
                         <span className={`absolute flex items-center justify-center w-9 h-9 ${curentStep + 1 >= 1 ? 'bg-green-200' : 'bg-gray-100'} rounded-full -start-5 ring-4 ring-white`}>
                             {curentStep >= 1 ? <svg className="w-3.5 h-3.5 text-green-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5.917 5.724 10.5 15 1.5" />
@@ -21,7 +21,7 @@ export const LeftSidebar = ({ curentStep }: { curentStep: number }) => {
                         <h3 className={`font-medium leading-tight ${curentStep >= 1 && 'text-white'}`}>Personal Information</h3>
                         <p className={`text-sm ${curentStep >= 1 && 'text-white'}`}>Setup details here</p>
                     </li>
-                    <li className="mb-10 ms-10">
+                    <li className="mb-10 ms-10 cursor-pointer" onClick={() => setCurrentStep(1)}>
                         <span className={`absolute flex items-center justify-center w-9 h-9 ${curentStep + 1 >= 2 ? 'bg-green-200' : 'bg-gray-100'} rounded-full -start-5 ring-4 ring-white`}>
                             {curentStep >= 2 ? <svg className="w-3.5 h-3.5 text-green-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5.917 5.724 10.5 15 1.5" />
@@ -30,7 +30,7 @@ export const LeftSidebar = ({ curentStep }: { curentStep: number }) => {
                         <h3 className={`font-medium leading-tight ${curentStep >= 2 && 'text-white'}`}>Work Experiences</h3>
                         <p className={`text-sm ${curentStep >= 2 && 'text-white'}`}>Setup details here</p>
                     </li>
-                    <li className="mb-10 ms-10">
+                    <li className="mb-10 ms-10 cursor-pointer" onClick={() => setCurrentStep(2)}>
                         <span className={`absolute flex items-center justify-center w-9 h-9 ${curentStep + 1 >= 3 ? 'bg-green-200' : 'bg-gray-100'} rounded-full -start-5 ring-4 ring-white`}>
                             {curentStep >= 3 ? <svg className="w-3.5 h-3.5 text-green-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5.917 5.724 10.5 15 1.5" />
@@ -50,6 +50,6 @@ export const LeftSidebar = ({ curentStep }: { curentStep: number }) => {
                     </li>
                 </ol>
             </div>
-        </div>
+        </div >
     )
 }
