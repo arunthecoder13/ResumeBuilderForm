@@ -262,7 +262,7 @@ export default function Home() {
 
           {formSteps[curentStep].title === "Education History" && formData.educationHistory.length > 0 &&
             <div className="container h-[200px] overflow-auto">
-              <table className="min-w-full bg-white border border-gray-300">
+              <table className="min-w-full bg-white border border-gray-300 text-black">
                 <thead>
                   <tr>
                     <th className="py-2 px-4 border-b text-center">University Name</th>
